@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Apprendre le C pas à pas</title>
+<style>
+:root{--bg:#fafaf8;--card:#fff;--tx:#1d1d1b;--mut:#6b6b66;--bd:#dcdcd5;--ac:#2f6fed;--ok:#1f9d55;--ko:#d03a3a;--code:#14161a;--codetx:#e6e6e6}
+@media(prefers-color-scheme:dark){:root{--bg:#161614;--card:#1f1f1c;--tx:#ececE6;--mut:#9a9a92;--bd:#34342f;--ac:#6b9bff;--ok:#43c47a;--ko:#ff6b6b}}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.5 -apple-system,system-ui,sans-serif;background:var(--bg);color:var(--tx);display:flex;min-height:100vh}
+aside{width:250px;border-right:1px solid var(--bd);padding:16px;overflow:auto;flex-shrink:0}
+main{flex:1;padding:20px;max-width:900px}
+h1{font-size:18px;margin:0 0 4px}h2{margin:0 0 6px;font-size:20px}
+.bar{height:6px;background:var(--bd);border-radius:3px;margin:8px 0 14px}.bar i{display:block;height:100%;background:var(--ok);border-radius:3px}
+.lv{display:block;width:100%;text-align:left;padding:7px 10px;margin:2px 0;border:0;border-radius:6px;background:none;color:var(--tx);cursor:pointer;font:inherit}
+.lv:hover{background:var(--card)}.lv.cur{background:var(--card);outline:1px solid var(--ac)}.lv.done:before{content:"✓ ";color:var(--ok)}
+.lv:disabled{opacity:.4;cursor:not-allowed}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:14px;margin-bottom:14px}
+textarea{width:100%;height:280px;background:var(--code);color:var(--codetx);border:1px solid var(--bd);border-radius:8px;padding:12px;font:13.5px/1.5 ui-monospace,Menlo,monospace;resize:vertical;tab-size:4}
+pre{background:var(--code);color:var(--codetx);padding:10px;border-radius:8px;overflow:auto;margin:6px 0 0;white-space:pre-wrap;font:13px ui-monospace,Menlo,monospace}
+button.b{padding:8px 14px;border-radius:7px;border:1px solid var(--bd);background:var(--card);color:var(--tx);cursor:pointer;font:inherit;margin:8px 6px 0 0}
+button.p{background:var(--ac);color:#fff;border-color:var(--ac)}button.b:disabled{opacity:.5}
+input{padding:7px;border:1px solid var(--bd);border-radius:6px;background:var(--card);color:var(--tx);font:inherit;width:100%;margin:4px 0}
+.ok{color:var(--ok);font-weight:600}.ko{color:var(--ko);font-weight:600}.mut{color:var(--mut);font-size:13px}
+code{background:var(--bd);padding:1px 5px;border-radius:4px}
+details{margin-top:12px}summary{cursor:pointer;color:var(--mut)}
+@media(max-width:700px){body{flex-direction:column}aside{width:100%;border:0;border-bottom:1px solid var(--bd)}}
+</style>
+</head>
+<body>
+<aside>
+  <h1>🧠 Apprendre le C</h1>
+  <div class="mut" id="prog"></div><div class="bar"><i id="barf"></i></div>
+  <div id="list"></div>
+  <details><summary>⚙️ Réglages Grok</summary>
+    <label class="mut">Clé API xAI</label><input id="key" type="password" placeholder="xai-...">
+    <label class="mut">Modèle</label><input id="model" placeholder="grok-4">
+    <div class="mut">Stockées uniquement dans ton navigateur. Utilisées pour les indices et exercices adaptatifs.</div>
+  </details>
+  <button class="b" id="reset">Réinitialiser</button>
+</aside>
+<main>
+  <h2 id="title"></h2>
+  <div class="card" id="lesson"></div>
+  <div class="card"><b>🎯 Exercice</b><div id="task"></div></div>
+  <textarea id="code" spellcheck="false"></textarea>
+  <button class="b p" id="run">▶ Compiler et tester</button>
+  <button class="b" id="hint">💡 Indice (Grok)</button>
+  <button class="b" id="gen">✨ Exercice adapté (Grok)</button>
+  <button class="b" id="next" style="display:none">Niveau suivant →</button>
+  <div id="res" class="card" style="margin-top:12px;display:none"></div>
+</main>
+<script>
+const L=[
+{t:"Hello, world",lesson:"Tout programme C commence par <code>main</code>. <code>#include &lt;stdio.h&gt;</code> donne accès à <code>printf</code>, qui affiche du texte. <code>\\n</code> = retour à la ligne.",task:"Affiche exactement : <code>Bonjour, C !</code>",start:"#include <stdio.h>\n\nint main(void) {\n    // ton code ici\n    return 0;\n}\n",exp:"Bonjour, C !",hint:"printf(\"...\\n\"); — n'oublie pas le point-virgule."},
+{t:"Variables",lesson:"Une variable a un type : <code>int</code> (entier), <code>double</code> (décimal), <code>char</code>. On affiche un entier avec <code>%d</code> : <code>printf(\"%d\\n\", x);</code>",task:"Déclare <code>int a = 7, b = 5;</code> et affiche leur somme (<code>12</code>).",start:"#include <stdio.h>\n\nint main(void) {\n    \n    return 0;\n}\n",exp:"12",hint:"printf(\"%d\\n\", a + b);"},
+{t:"Formats d'affichage",lesson:"<code>%f</code> affiche un décimal, <code>%.2f</code> avec 2 chiffres après la virgule. <code>%c</code> un caractère, <code>%s</code> une chaîne.",task:"Avec <code>double pi = 3.14159;</code> affiche <code>Pi = 3.14</code>.",start:"#include <stdio.h>\n\nint main(void) {\n    double pi = 3.14159;\n    \n    return 0;\n}\n",exp:"Pi = 3.14",hint:"printf(\"Pi = %.2f\\n\", pi);"},
+{t:"Conditions",lesson:"<code>if (cond) {...} else {...}</code>. Le modulo <code>%</code> donne le reste : <code>n % 2 == 0</code> teste la parité.",task:"Avec <code>int n = 15;</code> affiche <code>pair</code> ou <code>impair</code>.",start:"#include <stdio.h>\n\nint main(void) {\n    int n = 15;\n    \n    return 0;\n}\n",exp:"impair",hint:"if (n % 2 == 0) printf(\"pair\\n\"); else printf(\"impair\\n\");"},
+{t:"Boucle for",lesson:"<code>for (int i = 0; i &lt; 5; i++) {...}</code> répète 5 fois : initialisation ; condition ; incrément.",task:"Affiche les nombres de 1 à 5, un par ligne.",start:"#include <stdio.h>\n\nint main(void) {\n    \n    return 0;\n}\n",exp:"1\n2\n3\n4\n5",hint:"for (int i = 1; i <= 5; i++) printf(\"%d\\n\", i);"},
+{t:"Boucle while",lesson:"<code>while (cond) {...}</code> répète tant que la condition est vraie. Attention aux boucles infinies !",task:"Calcule la somme de 1 à 10 avec un <code>while</code> et affiche-la (<code>55</code>).",start:"#include <stdio.h>\n\nint main(void) {\n    int i = 1, somme = 0;\n    \n    return 0;\n}\n",exp:"55",hint:"while (i <= 10) { somme += i; i++; }"},
+{t:"FizzBuzz",lesson:"Combine boucle et conditions. <code>&&</code> = ET, <code>||</code> = OU. Teste d'abord le cas le plus spécifique.",task:"De 1 à 15 : affiche <code>Fizz</code> si multiple de 3, <code>Buzz</code> si multiple de 5, <code>FizzBuzz</code> si les deux, sinon le nombre.",start:"#include <stdio.h>\n\nint main(void) {\n    \n    return 0;\n}\n",exp:"1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz\n11\nFizz\n13\n14\nFizzBuzz",hint:"Teste i % 15 == 0 en premier."},
+{t:"Fonctions",lesson:"Une fonction : <code>type nom(paramètres) { ... return valeur; }</code>. Elle doit être déclarée avant <code>main</code>.",task:"Écris <code>int carre(int x)</code> et affiche <code>carre(9)</code> (<code>81</code>).",start:"#include <stdio.h>\n\n// écris carre ici\n\nint main(void) {\n    printf(\"%d\\n\", carre(9));\n    return 0;\n}\n",exp:"81",hint:"int carre(int x) { return x * x; }"},
+{t:"Tableaux",lesson:"<code>int t[6] = {4,8,15,16,23,42};</code> Les indices vont de 0 à 5. Pas de vérification des bornes : sortir du tableau est un bug grave.",task:"Parcours le tableau <code>{4,8,15,16,23,42}</code> et affiche la somme (<code>108</code>) puis le maximum (<code>42</code>) sur deux lignes.",start:"#include <stdio.h>\n\nint main(void) {\n    int t[6] = {4, 8, 15, 16, 23, 42};\n    \n    return 0;\n}\n",exp:"108\n42",hint:"Garde une variable max, mets-la à jour si t[i] > max."},
+{t:"Chaînes de caractères",lesson:"Une chaîne est un tableau de <code>char</code> terminé par <code>'\\0'</code>. <code>strlen</code> (dans <code>&lt;string.h&gt;</code>) donne sa longueur.",task:"Inverse <code>\"bonjour\"</code> et affiche <code>ruojnob</code>.",start:"#include <stdio.h>\n#include <string.h>\n\nint main(void) {\n    char s[] = \"bonjour\";\n    \n    return 0;\n}\n",exp:"ruojnob",hint:"Boucle i de len-1 à 0 et affiche s[i] avec %c."},
+{t:"Pointeurs",lesson:"<code>int *p = &amp;x;</code> : <code>p</code> stocke l'adresse de <code>x</code>, <code>*p</code> accède à la valeur. Passer des pointeurs permet à une fonction de modifier les variables de l'appelant.",task:"Écris <code>void echange(int *a, int *b)</code>. Avec <code>x=3, y=5</code>, après échange affiche <code>5 3</code>.",start:"#include <stdio.h>\n\n// écris echange ici\n\nint main(void) {\n    int x = 3, y = 5;\n    echange(&x, &y);\n    printf(\"%d %d\\n\", x, y);\n    return 0;\n}\n",exp:"5 3",hint:"int tmp = *a; *a = *b; *b = tmp;"},
+{t:"Allocation dynamique",lesson:"<code>malloc(n * sizeof(int))</code> réserve de la mémoire sur le tas (<code>&lt;stdlib.h&gt;</code>). Il faut toujours la libérer avec <code>free</code>.",task:"Alloue un tableau de 5 entiers, remplis-le avec <code>i*i</code>, affiche <code>0 1 4 9 16</code> (séparés par des espaces), puis libère-le.",start:"#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int *t = malloc(5 * sizeof(int));\n    \n    free(t);\n    return 0;\n}\n",exp:"0 1 4 9 16",hint:"Remplis avec une boucle, puis affiche avec printf(\"%d \", ...) ou un test sur i pour l'espace final (l'espace final est toléré)."}
+];
+const $=id=>document.getElementById(id);
+let S=JSON.parse(localStorage.getItem("learnC")||"null")||{done:{},cur:0,key:"",model:"grok-4",fails:0,code:{}};
+let custom=null;
+const save=()=>localStorage.setItem("learnC",JSON.stringify(S));
+const ex=()=>custom||L[S.cur];
+const norm=s=>s.trim().split("\n").map(l=>l.trimEnd()).join("\n");
+
+function render(){
+  const n=Object.keys(S.done).length;
+  $("prog").textContent=n+" / "+L.length+" niveaux validés";
+  $("barf").style.width=(100*n/L.length)+"%";
+  $("list").innerHTML="";
+  L.forEach((e,i)=>{
+    const b=document.createElement("button");
+    b.className="lv"+(i===S.cur&&!custom?" cur":"")+(S.done[i]?" done":"");
+    b.textContent=(i+1)+". "+e.t;
+    b.disabled=i>0&&!S.done[i-1]&&!S.done[i];
+    b.onclick=()=>{custom=null;S.cur=i;save();load()};
+    $("list").appendChild(b);
+  });
+  $("key").value=S.key;$("model").value=S.model;
+}
+function load(){
+  const e=ex();
+  $("title").textContent=custom?"✨ "+e.t:(S.cur+1)+". "+e.t;
+  $("lesson").innerHTML=e.lesson;
+  $("task").innerHTML="<br>"+e.task;
+  $("code").value=custom?e.start:(S.code[S.cur]||e.start);
+  $("res").style.display="none";$("next").style.display="none";
+  render();
+}
+async function compile(code){
+  const r=await fetch("https://wandbox.org/api/compile.json",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({compiler:"gcc-head-c",code,options:"warning",save:false})});
+  if(!r.ok)throw new Error("API Wandbox : HTTP "+r.status);
+  return r.json();
+}
+function show(html,txt){const r=$("res");r.style.display="block";r.innerHTML=html;if(txt!==undefined){const p=document.createElement("pre");p.textContent=txt;r.appendChild(p)}}
+
+$("code").addEventListener("keydown",e=>{
+  if(e.key==="Tab"){e.preventDefault();const t=e.target,s=t.selectionStart;t.value=t.value.slice(0,s)+"    "+t.value.slice(t.selectionEnd);t.selectionStart=t.selectionEnd=s+4}
+});
+$("code").addEventListener("input",()=>{if(!custom){S.code[S.cur]=$("code").value;save()}});
+
+$("run").onclick=async()=>{
+  const b=$("run");b.disabled=true;show("⏳ Compilation...");
+  try{
+    const d=await compile($("code").value);
+    if(d.compiler_error&&d.status!=="0"){S.fails++;save();return show('<span class="ko">❌ Erreur de compilation</span>',d.compiler_error)}
+    if(d.status!=="0"&&!d.program_output){S.fails++;save();return show('<span class="ko">❌ Le programme a planté (code '+d.status+')</span>',d.program_error||"")}
+    const out=d.program_output||"";
+    if(norm(out)===norm(ex().exp)){
+      if(!custom){S.done[S.cur]=1;S.fails=0;save();render()}
+      show('<span class="ok">✅ Bravo, sortie correcte !</span>',out);
+      if(custom||S.cur<L.length-1)$("next").style.display="inline-block";
+      if(!custom&&S.cur===L.length-1)show('<span class="ok">🎉 Tous les niveaux sont validés ! Continue avec les exercices adaptés Grok.</span>',out);
+    }else{
+      S.fails++;save();
+      show('<span class="ko">❌ Sortie incorrecte</span><div class="mut">Attendu :</div>',ex().exp);
+      const p=document.createElement("div");p.className="mut";p.textContent="Obtenu :";$("res").appendChild(p);
+      const q=document.createElement("pre");q.textContent=out||"(rien)";$("res").appendChild(q);
+    }
+  }catch(e){show('<span class="ko">Erreur : '+e.message+'</span>')}
+  b.disabled=false;
+};
+$("next").onclick=()=>{if(custom){generate()}else{S.cur++;save();load()}};
+
+async function grok(messages){
+  if(!S.key)throw new Error("Ajoute ta clé API xAI dans ⚙️ Réglages Grok.");
+  const r=await fetch("https://api.x.ai/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+S.key},body:JSON.stringify({model:S.model||"grok-4",messages,temperature:0.7})});
+  if(!r.ok)throw new Error("API Grok : HTTP "+r.status+" "+(await r.text()).slice(0,200));
+  return (await r.json()).choices[0].message.content;
+}
+$("hint").onclick=async()=>{
+  const b=$("hint");b.disabled=true;show("⏳ Grok réfléchit...");
+  try{
+    const e=ex();
+    const a=await grok([{role:"system",content:"Tu es un prof de C bienveillant pour un débutant complet. Réponds en français, en 4 phrases max. Donne un indice progressif, jamais la solution complète."},{role:"user",content:"Exercice : "+e.task.replace(/<[^>]+>/g,"")+"\n\nMon code :\n"+$("code").value+"\n\nAide-moi sans me donner la réponse."}]);
+    show("💡 <b>Indice</b>",a);
+  }catch(err){show('<span class="ko">'+err.message+"</span>"+(custom?"":'<div class="mut">Indice intégré : '+ex().hint+"</div>"))}
+  b.disabled=false;
+};
+async function generate(){
+  const b=$("gen");b.disabled=true;show("⏳ Grok prépare un exercice adapté...");
+  try{
+    const n=Object.keys(S.done).length;
+    const lvl=S.fails>=3?"un peu plus facile que le niveau actuel (l'élève bloque)":n>=L.length?"plus difficile que tout ce qui précède":"proche du niveau "+Math.max(1,n)+"/"+L.length;
+    const raw=await grok([{role:"system",content:"Tu génères des exercices de C pour débutant. Réponds UNIQUEMENT par un objet JSON valide, sans markdown."},{role:"user",content:"Crée un exercice de C "+lvl+". Notions déjà vues : "+L.slice(0,Math.max(1,n)).map(x=>x.t).join(", ")+". Contraintes : pas d'entrée clavier, sortie texte déterministe, programme complet avec main. JSON : {\"title\":\"\",\"lesson\":\"rappel court en HTML simple\",\"task\":\"consigne précise incluant la sortie attendue\",\"starter\":\"code C à trous avec commentaires\",\"solution\":\"solution complète en C\"}"}]);
+    const j=JSON.parse(raw.replace(/^```(json)?|```$/gm,"").trim());
+    const d=await compile(j.solution);
+    if(d.status!=="0"||!d.program_output)throw new Error("La solution générée ne compile pas, réessaie.");
+    custom={t:j.title,lesson:j.lesson,task:j.task,start:j.starter,exp:d.program_output};
+    load();
+  }catch(err){show('<span class="ko">'+err.message+"</span>")}
+  b.disabled=false;
+}
+$("gen").onclick=generate;
+$("key").onchange=e=>{S.key=e.target.value.trim();save()};
+$("model").onchange=e=>{S.model=e.target.value.trim()||"grok-4";save()};
+$("reset").onclick=()=>{if(confirm("Effacer toute ta progression ?")){localStorage.removeItem("learnC");location.reload()}};
+load();
+</script>
+</body>
+</html>
